@@ -1,0 +1,104 @@
+name: Submission FSM
+description: Imaginary submission for presenting FSM definition
+
+version: 1
+
+states:
+  - Draft
+  - ManagerReview
+  - CeoReview
+  - InMeeting
+  - WaitingForVotes
+  - VotingFinished
+  - Closed
+
+events:
+  - name: SubmissionCreated
+    inputs:
+      title: string
+      description?: string # not mandatory
+      meetingTypeId: MeetingTypeId
+      agendaItemType: AgendaItemType
+    validators:
+      - type: IsGreaterThan
+        params: [EVENT_INPUTS.title, 5]
+    reducer: PasteInputs # this should be built in reducer
+
+  - name: SummarySaved
+    inputs:
+      summary: object
+    reducer:
+      type: OverrideStateKeys
+      params: [{ "summary": EVENT_INPUTS.summary }]
+
+  - name: SendToManager
+    inputs:
+      managerId: string
+      comment: string
+    validators:
+      - type: ArrayIncludes
+        params: [EXECUTOR_DATA.roles, "secretary"]
+
+  - name: SentToCeo
+    inputs:
+      ceoUserId: string
+
+  - name: AssignedToMeeting
+    inputs:
+      meetingId: string
+
+  - name: MemberVoted
+    inputs:
+      voteValue: string
+    validators:
+      # every validator type can be prefixed with NOT_ for negated validator
+      - type: NOT_ArrayIncludes
+        params: [CURRENT_STATE_DATA.usersWhoVoted, EXECUTOR_DATA.userId]
+
+  - name: ChairmanVoted
+    inputs:
+      voteValue: string
+    validators:
+      - type: NOT_ArrayIncludes
+        params: [CURRENT_STATE_DATA.usersWhoVoted, EXECUTOR_DATA.userId]
+
+eventTransitions:
+  - event: SubmissionCreated
+    fromState: NullState
+    toState: Draft
+
+  - event: SummarySaved
+    fromState: Draft
+    caseTransition:
+      - condition: IsDefined
+        params: [CALCULATED_STATE_DATA.summary.general.fdoa]
+        toState: ManagerReview
+      # caseTransition will set first matched state, if none mathe this one will
+      - condition: TRUE
+        toState: Draft
+
+  - event: SentToManager
+    fromState: Draft
+    toState: ManagerReview
+
+  - event: SentToCeo
+    fromState: ManagerReview
+    toState: CeoReview
+
+  - event: AssignedToMeeting
+    fromState: CeoReview
+    toState: InMeeting
+
+  - event: [MemberVoted, ChairmanVoted] # specify multiple events
+    fromState: WaitingForVotes
+    caseTransition:
+      # voting is finished when quorum is reached
+      - condition: IsTrue
+        params: [CALCULATED_STATE_DATA.quorumReached]
+        toState: VotingFinished
+      - condition: TRUE
+        toState: WaitingForVotes
+
+  - event: ReturnedForCorrection
+    fromState: ANY_STATE
+    toState: Draft
