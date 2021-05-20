@@ -9,6 +9,7 @@ states:
   - ManagerReview
   - CeoReview
   - InMeeting
+  - VotingAllowed
   - WaitingForVotes
   - VotingFinished
   - Closed
@@ -89,6 +90,10 @@ eventTransitions:
   - event: AssignedToMeeting
     fromState: CeoReview
     toState: InMeeting
+
+  - event: VotingAllowed
+    fromState: InMeeting
+    toState: WaitingForVotes
 
   - event: [MemberVoted, ChairmanVoted] # specify multiple events
     fromState: WaitingForVotes

@@ -1,0 +1,21 @@
+@startuml
+[*] --> Draft : SubmissionCreated
+Draft --> Draft : SummarySaved
+Draft --> ManagerReview : SummarySaved
+Draft --> ManagerReview : SendToManager
+
+ManagerReview --> Draft : ReturnedForCorrection
+ManagerReview --> CeoReview : SentToCeo
+
+CeoReview --> Draft : ReturnedForCorrection
+CeoReview --> InMeeting : AssignedToMeeting
+
+InMeeting --> WaitingForVotes : VotingAllowed
+
+WaitingForVotes --> WaitingForVotes : MemberVoted 
+WaitingForVotes --> WaitingForVotes : ChairmanVoted 
+
+WaitingForVotes --> VotingFinished : MemberVoted 
+WaitingForVotes --> VotingFinished : ChairmanVoted 
+
+@enduml
