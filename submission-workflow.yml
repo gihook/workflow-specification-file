@@ -1,3 +1,4 @@
+id: SubmissionsWorkflow
 name: Submission FSM
 description: Imaginary submission for presenting FSM definition
 
@@ -64,16 +65,16 @@ events:
 
 eventTransitions:
   - event: SubmissionCreated
-    fromState: NullState
+    fromState: NULL_STATE
     toState: Draft
 
   - event: SummarySaved
     fromState: Draft
-    caseTransition:
+    conditionalTransition:
       - condition: IsDefined
         params: [CALCULATED_STATE_DATA.summary.general.fdoa]
         toState: ManagerReview
-      # caseTransition will set first matched state, if none mathe this one will
+      # conditionalTransition will set first matched state, if none mathe this one will
       - condition: TRUE
         toState: Draft
 
@@ -91,7 +92,7 @@ eventTransitions:
 
   - event: [MemberVoted, ChairmanVoted] # specify multiple events
     fromState: WaitingForVotes
-    caseTransition:
+    conditionalTransition:
       # voting is finished when quorum is reached
       - condition: IsTrue
         params: [CALCULATED_STATE_DATA.quorumReached]

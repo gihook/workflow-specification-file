@@ -29,7 +29,7 @@ Executor
 Reducer
 - code (class implementing reducer interface) that is executed applying event when StateData is calculated. Reducer should not have external dependencies, i.e. StateData is calculated as series of in memory transformations
 
-NullState
+NULL_STATE
 - initial state of every aggregate. This State does not need to be explicitly defined in workflow definition
 
 Projection
@@ -52,6 +52,10 @@ CALCULATED_STATE_DATA is state data calculated from stored events + applied even
 ## Events
 
 Respresents FSM available events. Events are used to move system from one state to another. Each event can define set of input parameters as a dictionary, where key represents parameter name and value is parameter type. Events also define *validators* and (only one) *reducer*
+
+### Reducers
+
+Reducers calculate ONLY data necessary for validation and other workflow conditionals
 
 ## Event Transitions
 
