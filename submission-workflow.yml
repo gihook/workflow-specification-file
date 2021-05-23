@@ -30,7 +30,7 @@ events:
     inputs:
       summary: object
     reducer:
-      type: OverrideStateKeys
+      type: OverrideStateDataKeys
       params: [{ "summary": EVENT_INPUTS.summary }]
 
   - name: SendToManager
@@ -72,7 +72,7 @@ eventTransitions:
   - event: SummarySaved
     fromState: Draft
     conditionalTransition:
-      - condition: IsDefined
+      - condition: IsDefined # same functions as in validators
         params: [CALCULATED_STATE_DATA.summary.general.fdoa]
         toState: ManagerReview
       # conditionalTransition will set first matched state, if none mathe this one will
